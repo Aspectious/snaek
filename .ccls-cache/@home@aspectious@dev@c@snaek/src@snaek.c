@@ -21,8 +21,16 @@ void drawBoard(int numRows, int numCols, char* titleBoxText);
 void *inputread();
 void setupThreads();
 void *tick();
+void *boardThread();
 
 struct winsize w;
+
+int direction = 1;
+int curx = 0;
+int cury = 0;
+int dX = 0;
+int dY = 0;
+int board[300][500]; // Max size
 
 int main() {
 	gameSetup();
@@ -39,14 +47,15 @@ void gameSetup() {
 }
 
 void setupThreads() {
-	pthread_t id_tick, id_inputread;
+	pthread_t id_tick, id_inputread, id_boardthread;
 	
 	pthread_create(&id_tick, NULL, tick, NULL);
 	pthread_create(&id_inputread, NULL, inputread, NULL);
+	pthread_create(&id_boardthread, NULL, boardThread, NULL);
 
 	pthread_join(id_tick, NULL);
 	pthread_join(id_inputread, NULL);
-	
+	pthread_join(id_boardthread, NULL);
 }
 
 // Game board is programmed to take up the height of the terminal and half of the width, centered in the middle of the terminal
@@ -58,7 +67,7 @@ void drawBoard(int numRows, int numCols, char* titleBoxText) {
 	printf("╗\n");
 	for (int i=0; i<numRows-2; i++) {
 		printf("║");
-		for(int i=0; i<100; i++) {
+		for(int i=0; i<(numCols/2); i++) {
 			printf(" ");
 		}
 		printf("║\n");
@@ -66,21 +75,19 @@ void drawBoard(int numRows, int numCols, char* titleBoxText) {
 	printf("╚");
 	for (int i=0; i<100; i++) printf("═");
 	printf("╝");
+	for (int i=0; i<numRows; i++ {
+		for (int j=0; j<(numCols/2): j++) {
+
+		}
+	}
 }
-
-int direction = 1;
-int curx = 0;
-int cury = 0;
-int dX = 0;
-int dY = 0;
-
 void *inputread() {
 	
 	enableRAWMode();
 	char ch;
 
 	while ((ch = getchar()) != 27) {
-		if ((ch == 100) && (direction!=3)) {
+		if ((ch == 119) && (direction!=3)) {
 			direction=1;
 			dX=0;
 			dY=-1;
@@ -90,7 +97,7 @@ void *inputread() {
 			dX=-1;
 			dY=0;
 		}
-		if ((ch == 102) && (direction !=4)) {
+		if ((ch == 100) && (direction !=4)) {
 			direction=2;
 			dX=1;
 			dY=0;
@@ -121,6 +128,13 @@ void *tick() {
 		if ((curx<2)||(cury<2)||(curx>w.ws_col/2-1)||(cury>w.ws_row-1)) ESCgamePaused = 1;
 	}
 }
+
+void *boardThread() {
+	while (!ESCgamePaused) {
+	
+	}
+}
+
 /// This function enables RAW mode for terminal.
 void enableRAWMode() {
   struct termios raw;
