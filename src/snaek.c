@@ -31,6 +31,7 @@ int cury = 0;
 int dX = 0;
 int dY = 0;
 int board[300][500]; // Max size
+int snakeLength = 15;
 
 int main() {
 	gameSetup();
@@ -47,15 +48,13 @@ void gameSetup() {
 }
 
 void setupThreads() {
-	pthread_t id_tick, id_inputread, id_boardthread;
+	pthread_t id_tick, id_inputread;
 	
 	pthread_create(&id_tick, NULL, tick, NULL);
 	pthread_create(&id_inputread, NULL, inputread, NULL);
-	pthread_create(&id_boardthread, NULL, boardThread, NULL);
 
 	pthread_join(id_tick, NULL);
 	pthread_join(id_inputread, NULL);
-	pthread_join(id_boardthread, NULL);
 }
 
 // Game board is programmed to take up the height of the terminal and half of the width, centered in the middle of the terminal
@@ -63,7 +62,7 @@ void setupThreads() {
 void drawBoard(int numRows, int numCols, char* titleBoxText) {
 	clear();
 	printf("╔══╣ %s ╠", titleBoxText);
-	for (int i=0; i<(numCols-2)-6-strlen(titleBoxText); i++) printf("═");
+	for (int i=0; i<(numCols/2)-6-strlen(titleBoxText); i++) printf("═");
 	printf("╗\n");
 	for (int i=0; i<numRows-2; i++) {
 		printf("║");
@@ -73,10 +72,10 @@ void drawBoard(int numRows, int numCols, char* titleBoxText) {
 		printf("║\n");
 	}
 	printf("╚");
-	for (int i=0; i<100; i++) printf("═");
+	for (int i=0; i<(numCols/2); i++) printf("═");
 	printf("╝");
-	for (int i=0; i<numRows; i++ {
-		for (int j=0; j<(numCols/2): j++) {
+	for (int i=0; i<numRows; i++) {
+		for (int j=0; j<(numCols/2); j++) {
 
 		}
 	}
@@ -119,22 +118,58 @@ void *tick() {
 		if ((direction == 1)||(direction == 3)) usleep(80000);
 		else usleep(50000);
 		gotoxy(curx, cury);
-		printf("%d\n",direction);
+		printf("5\n");
+		board[cury][curx] = snakeLength + 1;
 		curx += dX;
 		cury += dY;
 		gotoxy(120,16);
 		printf("%d,%d\n",curx,cury);
 		gotoxy(curx, cury);
-		if ((curx<2)||(cury<2)||(curx>w.ws_col/2-1)||(cury>w.ws_row-1)) ESCgamePaused = 1;
+
+		for (int i=0; i<=w.ws_col/2+1; i++) {
+			for (int j=0; j<w.ws_row; j++) {
+				int num = board[j][i];
+				if (num > 0) board[j][i] --;
+				if (num > 1) {
+					if (num == snakeLength+1) {
+						gotoxy(i,j);
+						printf("█\n");
+						gotoxy(curx,cury);
+					
+					}
+					else if (num > 2*(snakeLength/(float)3)) {
+						gotoxy(i,j);
+						printf("▓\n");
+						gotoxy(curx,cury);
+					
+					}
+					else if (num > (snakeLength/3)) {
+						gotoxy(i,j);
+						printf("▒\n");
+						gotoxy(curx,cury);
+					
+					}
+					else {
+						gotoxy(i,j);
+						printf("░\n");
+						gotoxy(curx,cury);
+					
+					}
+				} 
+				if (num == 1) {
+					gotoxy(i,j);
+					printf(" \n");
+					gotoxy(curx,cury);
+				}
+			}
+		}
+		if ((curx<2)||(cury<2)||(curx>w.ws_col/2+1)||(cury>w.ws_row-1)) ESCgamePaused = 1;
 	}
 }
 
-void *boardThread() {
-	while (!ESCgamePaused) {
-	
-	}
-}
+void placeApple() {
 
+}
 /// This function enables RAW mode for terminal.
 void enableRAWMode() {
   struct termios raw;
